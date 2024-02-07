@@ -10,7 +10,7 @@
 
 {$CADDY_EXTRA_CONFIG}
 
-{$SERVER_NAME:localhost} {
+http://localhost {
 	root * /srv/public/
 
 	{$CADDY_SERVER_EXTRA_DIRECTIVES}
