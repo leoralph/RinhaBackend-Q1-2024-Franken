@@ -5,18 +5,22 @@ declare(strict_types=1);
 // create pdo for postgres
 $pdo = new \PDO('pgsql:host=db;port=5432;dbname=rinhadb', 'root', '1234');
 
-do {
+for ($i = 0, $running = true; $i < 500 && $running; $i++) {
+
 	$running = \frankenphp_handle_request(function () use ($pdo) {
 		header('Content-Type: application/json');
+		http_response_code(200);
 
 		$route = explode('/', $_SERVER['REQUEST_URI']);
 
 		if (!isset($route[1]) || $route[1] !== 'clientes') {
-			return headers_send(404);
+			http_response_code(404);
+			return;
 		}
 
 		if (!isset($route[2]) || !isset($route[3]) || !is_numeric($route[2])) {
-			return headers_send(404);
+			http_response_code(404);
+			return;
 		}
 
 		$clientId = (int) $route[2];
@@ -24,7 +28,8 @@ do {
 		switch ($route[3]) {
 			case 'transacoes':
 				if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-					return http_response_code(405);
+					http_response_code(405);
+					return;
 				}
 
 				$data = json_decode(file_get_contents('php://input'), true);
@@ -34,7 +39,8 @@ do {
 					|| !isset($data['tipo'])
 					|| !isset($data['descricao'])
 				) {
-					return http_response_code(422);
+					http_response_code(422);
+					return;
 				}
 
 				if (
@@ -44,7 +50,8 @@ do {
 					|| strlen($data['descricao']) < 1
 					|| strlen($data['descricao']) > 10
 				) {
-					return http_response_code(422);
+					http_response_code(422);
+					return;
 				}
 
 				$pdo->beginTransaction();
@@ -53,12 +60,14 @@ do {
 
 				if (!$client) {
 					$pdo->rollBack();
-					return http_response_code(404);
+					http_response_code(404);
+					return;
 				}
 
 				if ($data['tipo'] === 'd' && $client->saldo - $data['valor'] < 0) {
 					$pdo->rollBack();
-					return http_response_code(422);
+					http_response_code(422);
+					return;
 				}
 
 				$newBalance = $data['tipo'] === 'c'
@@ -83,16 +92,18 @@ do {
 					"limite" => $client->limite,
 				]);
 
-				break;
+				return;
 			case 'extrato':
 				if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
-					return http_response_code(405);
+					http_response_code(405);
+					return;
 				}
 
 				$client = $pdo->query("SELECT limite, saldo FROM clients WHERE id = $clientId")->fetchObject();
 
 				if (!$client) {
-					return http_response_code(404);
+					http_response_code(404);
+					return;
 				}
 
 				$lastTransactions = $pdo->query(
@@ -114,10 +125,12 @@ do {
 				return;
 
 			default:
-				return http_response_code(404);
+				http_response_code(404);
+				return;
 		}
 
 	});
 
 	gc_collect_cycles();
-} while ($running);
+
+}

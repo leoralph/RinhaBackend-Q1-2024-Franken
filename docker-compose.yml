@@ -7,17 +7,11 @@ services:
         depends_on:
             db:
                 condition: service_healthy
-        environment:
-            - CADDY_DEBUG=debug
-            - DEBUG=debug
-            - FRANKENPHP_CONFIG=worker /srv/public/index.php
-        volumes:
-            - ./Caddyfile:/etc/caddy/Caddyfile
         deploy:
             resources:
                 limits:
-                    cpus: "0.5"
-                    memory: "160MB"
+                    cpus: "0.6"
+                    memory: "200MB"
 
     api02:
         <<: *api
@@ -60,5 +54,5 @@ services:
         deploy:
             resources:
                 limits:
-                    cpus: "0.4"
-                    memory: "200MB"
+                    cpus: "0.2"
+                    memory: "120MB"
