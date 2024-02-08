@@ -64,7 +64,7 @@ while (true) {
 					return;
 				}
 
-				if ($data['tipo'] === 'd' && $client->saldo - $data['valor'] < 0) {
+				if ($data['tipo'] === 'd' && $client->saldo - $data['valor'] < $client->limite) {
 					$pdo->rollBack();
 					http_response_code(422);
 					return;
