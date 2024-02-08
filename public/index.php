@@ -25,6 +25,11 @@ while (true) {
 
 		$clientId = (int) $route[2];
 
+		if (!is_int($clientId) || $clientId < 1) {
+			http_response_code(404);
+			return;
+		}
+
 		switch ($route[3]) {
 			case 'transacoes':
 				if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -64,15 +69,15 @@ while (true) {
 					return;
 				}
 
-				if ($data['tipo'] === 'd' && $client->saldo - $data['valor'] < $client->limite) {
+				$newBalance = $data['tipo'] === 'c'
+					? $client->saldo + $data['valor']
+					: $client->saldo - $data['valor'];
+
+				if ($data['tipo'] === 'd' && $newBalance < -$client->limite) {
 					$pdo->rollBack();
 					http_response_code(422);
 					return;
 				}
-
-				$newBalance = $data['tipo'] === 'c'
-					? $client->saldo + $data['valor']
-					: $client->saldo - $data['valor'];
 
 				$pdo->exec(
 					"UPDATE clients SET saldo = $newBalance WHERE id = $clientId"
