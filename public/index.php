@@ -5,9 +5,9 @@ declare(strict_types=1);
 // create pdo for postgres
 $pdo = new \PDO('pgsql:host=db;port=5432;dbname=rinhadb', 'root', '1234');
 
-for ($i = 0, $running = true; $i < 500 && $running; $i++) {
+while (true) {
 
-	$running = \frankenphp_handle_request(function () use ($pdo) {
+	\frankenphp_handle_request(function () use ($pdo) {
 		header('Content-Type: application/json');
 		http_response_code(200);
 
