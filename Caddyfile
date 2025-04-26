@@ -2,7 +2,7 @@
 	{$CADDY_GLOBAL_OPTIONS}
 
 	frankenphp {
-		worker /srv/public/index.php 2
+		worker /srv/public/index.php 4
 		{$FRANKENPHP_CONFIG}
 	}
 	order php_server before file_server

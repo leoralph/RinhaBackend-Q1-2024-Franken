@@ -1,17 +1,15 @@
-version: "3.5"
-
 services:
     api01: &api
-        image: frankapp
-        build: .
+        build: 
+            context: .
         depends_on:
             db:
                 condition: service_healthy
         deploy:
             resources:
                 limits:
-                    cpus: "0.5"
-                    memory: "150MB"
+                    cpus: "0.35"
+                    memory: "90MB"
 
     api02:
         <<: *api
@@ -28,7 +26,7 @@ services:
         deploy:
             resources:
                 limits:
-                    cpus: "0.1"
+                    cpus: "0.2"
                     memory: "50MB"
 
     db:
@@ -42,9 +40,8 @@ services:
             - "5432:5432"
         volumes:
             - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-            - ./postgresql.conf:/docker-entrypoint-initdb.d/postgresql.conf
-        command: postgres -c config_file=/docker-entrypoint-initdb.d/postgresql.conf
-        # network_mode: host
+            - ./postgresql.conf:/etc/postgresql/postgresql.conf
+        command: postgres -c config_file=/etc/postgresql/postgresql.conf
         healthcheck:
             test: ["CMD-SHELL", "pg_isready"]
             interval: 5s
@@ -54,5 +51,5 @@ services:
         deploy:
             resources:
                 limits:
-                    cpus: "0.4"
-                    memory: "200MB"
+                    cpus: "0.6"
+                    memory: "320MB"
